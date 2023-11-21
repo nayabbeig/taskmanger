@@ -9,19 +9,26 @@ import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-import CircularProgress from "@mui/material/CircularProgress";
-import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { AuthenticationResponses } from "../../features/authentication/authenticationApi";
-import PATHS from "../../routing/paths";
 import { Task, TaskType, updateTask } from "../../features/task/taskSlice";
 import { useAppDispatch } from "../../app/hooks";
-import { useAppSnackbar } from "../common/AppSnackbar";
 import AppDatePicker from "../common/DatePicker";
+import { TaskFormData } from "./AddTaskForm";
 
 const theme = createTheme();
+
+const UpdateTaskHeader = () => (
+  <>
+    <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
+      <PlaylistAddIcon />
+    </Avatar>
+    <Typography component="h1" variant="h5">
+      Add A New Task
+    </Typography>
+  </>
+);
 
 export default function EditTaskForm({
   task,
@@ -35,22 +42,12 @@ export default function EditTaskForm({
   const [descriptionError, setDescriptionError] = React.useState("");
   const [dueDate, setDueDate] = React.useState<Date>(new Date());
 
-  const [loading, setLoading] = React.useState(false);
-
   const dispatch = useAppDispatch();
 
   const [alertError, setAlertError] =
     React.useState<AuthenticationResponses | null>(null);
 
-  const validate = ({
-    title,
-    description,
-    dueDate,
-  }: {
-    title: string;
-    description: string;
-    dueDate: Date;
-  }) => {
+  const validate = ({ title, description, dueDate }: TaskFormData) => {
     setTitleError(title ? "" : "Title is required");
     setDescriptionError(description ? "" : "Description name is required");
     setDueDateError(dueDate ? "" : "Due Date is required");
@@ -59,10 +56,9 @@ export default function EditTaskForm({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const { title, description } = {
-      title: data.get("title") as string,
-      description: data.get("description") as string,
-    };
+
+    const title = data.get("title") as string;
+    const description = data.get("description") as string;
 
     if (title && description && dueDate) {
       validate({ title, description, dueDate });
@@ -74,13 +70,11 @@ export default function EditTaskForm({
         type: TaskType.PENDING,
       } as Task;
 
-      const response = dispatch(updateTask(updatedTask));
+      dispatch(updateTask(updatedTask));
       onComplete();
-
       return;
     }
 
-    setLoading(false);
     validate({ title, description, dueDate });
   };
 
@@ -104,12 +98,6 @@ export default function EditTaskForm({
               {alertError.message}
             </Alert>
           )}
-          <Backdrop
-            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 5 }}
-            open={loading}
-          >
-            <CircularProgress color="inherit" />
-          </Backdrop>
           <Box
             sx={{
               marginTop: 8,
@@ -118,13 +106,7 @@ export default function EditTaskForm({
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-              <PlaylistAddIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Update Task
-            </Typography>
-
+            <UpdateTaskHeader />
             <Box
               component="form"
               noValidate

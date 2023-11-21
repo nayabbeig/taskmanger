@@ -24,7 +24,7 @@ import { reinitiateState } from "../features/task/taskSlice";
 const theme = createTheme();
 
 export default function Login() {
-  const [usernameError, setEmailError] = React.useState("");
+  const [usernameError, setUsernameError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function Login() {
     username: string;
     password: string;
   }) => {
-    setEmailError(username ? "" : "Email name is required");
+    setUsernameError(username ? "" : "Username name is required");
     setPasswordError(password ? "" : "Password name is required");
     return !!(username && password);
   };
@@ -113,7 +113,7 @@ export default function Login() {
                 required
                 fullWidth
                 id="username"
-                label="Email"
+                label="Username"
                 name="username"
                 autoComplete="username"
                 autoFocus

@@ -3,8 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -17,7 +15,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import NavBar from "../components/navbar/NavBar";
 import {
   AuthenticationResponses,
   AuthenticationStatus,
@@ -30,7 +27,7 @@ const theme = createTheme();
 export default function SignUp() {
   const [firstNameError, setFirstNameError] = React.useState("");
   const [lastNameError, setLastNameError] = React.useState("");
-  const [usernameError, setEmailError] = React.useState("");
+  const [usernameError, setUsernameError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
 
   const [loading, setLoading] = React.useState(false);
@@ -53,7 +50,7 @@ export default function SignUp() {
   }) => {
     setFirstNameError(firstName ? "" : "First name is required");
     setLastNameError(lastName ? "" : "Last name is required");
-    setEmailError(username ? "" : "Email name is required");
+    setUsernameError(username ? "" : "Username name is required");
     setPasswordError(password ? "" : "Password name is required");
   };
 

@@ -38,7 +38,6 @@ export const taskSlice = createSlice({
   reducers: {
     reinitiateState: (state) => {
       const initialState = getInitialState();
-      console.log("intialState", initialState);
       state.list = initialState.list;
     },
     createTask: (state, action: PayloadAction<Task>) => {
