@@ -1,4 +1,4 @@
-import { APP_KEY, User, getAppData } from "../task/taskApi";
+import { APP_KEY, User, getAppData, setAppData } from "../task/taskApi";
 
 export enum AuthenticationMessages {
   USER_NOT_FOUND = "User not found",
@@ -54,8 +54,6 @@ export const signUp = (user: User): AuthenticationResponses => {
       (existingUser) => existingUser.username === user.username
     );
 
-    console.log(existingUser);
-
     if (existingUser)
       return {
         status: AuthenticationStatus.CONFLICT,
@@ -76,6 +74,13 @@ export const signUp = (user: User): AuthenticationResponses => {
   }
 };
 
+export const setCurrentUser = (user: User) => {
+  const appData = getAppData();
+  if (!appData) return;
+  appData.currentUser = user;
+  setAppData(appData);
+};
+
 export const signIn = (
   username: string,
   password: string
@@ -87,15 +92,24 @@ export const signIn = (
     (user) => user.username === username && user.password === password
   );
 
-  if (currentUser)
+  if (currentUser) {
+    setCurrentUser(currentUser);
     return {
       status: AuthenticationStatus.SUCCESS,
       message: AuthenticationMessages.USER_LOGGED_IN,
       data: { value: currentUser },
     };
-
+  }
   return {
     status: AuthenticationStatus.NOT_FOUND,
     message: AuthenticationMessages.USER_NOT_FOUND,
   };
+};
+
+export const logout = () => {
+  const appData = getAppData();
+  if (!appData) return;
+
+  appData.currentUser = null;
+  setAppData(appData);
 };

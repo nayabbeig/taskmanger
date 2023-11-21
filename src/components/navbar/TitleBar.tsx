@@ -29,7 +29,7 @@ const TitleBar = (props: TitleBarProps) => (
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" noWrap component="div">
-        Responsive drawer
+        Task Manager
       </Typography>
     </Toolbar>
   </AppBar>

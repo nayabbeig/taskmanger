@@ -17,12 +17,17 @@ import {
   signIn,
 } from "../features/authentication/authenticationApi";
 import PATHS from "../routing/paths";
+import { redirect, useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../app/hooks";
+import { reinitiateState } from "../features/task/taskSlice";
 
 const theme = createTheme();
 
 export default function Login() {
   const [usernameError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [successResponse, setSuccessResponse] =
     React.useState<AuthenticationResponses | null>(null);
   const [alertError, setAlertError] =
@@ -53,8 +58,8 @@ export default function Login() {
 
       if (response.status === 200) {
         setSuccessResponse(response);
-        alert("successs");
-        // history.push(path.ui.root);
+        dispatch(reinitiateState());
+        navigate(PATHS.HOME);
       } else if (response.status >= 400) {
         setAlertError(response);
       }

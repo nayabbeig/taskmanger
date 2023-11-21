@@ -2,14 +2,19 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ResponsiveDrawer from "../components/navbar/NavBar";
+import NavBar from "../components/navbar/NavBar";
+import AddTaskForm from "../components/task/AddTaskForm";
+import TaskTable from "../components/task/TasksTable";
+import { useAppSelector } from "../app/hooks";
+import { TaskType, selectAllCompletedTasks } from "../features/task/taskSlice";
 
 const drawerWidth = 240;
 
 export default function CompletedTasksPage() {
+  const completedTasks = useAppSelector(selectAllCompletedTasks);
   return (
     <Box sx={{ display: "flex" }}>
-      <ResponsiveDrawer />
+      <NavBar />
       <Box
         component="main"
         sx={{
@@ -19,9 +24,7 @@ export default function CompletedTasksPage() {
         }}
       >
         <Toolbar />
-        <Typography paragraph>
-          <h1>Completed Tasks</h1>
-        </Typography>
+        <TaskTable type={TaskType.COMPLETED} tasks={completedTasks} />
       </Box>
     </Box>
   );

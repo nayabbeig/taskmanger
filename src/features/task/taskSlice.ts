@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, AppThunk } from "../../app/store";
-import { getTasks } from "./taskApi";
+import { getTasks, saveTasks } from "./taskApi";
 
 export enum TaskType {
   PENDING = "pending",
@@ -13,6 +13,7 @@ export interface Task {
   description: string;
   dueDate: string;
   type: TaskType;
+  completionDate?: string;
 }
 
 // As everything is synchronous, I have not added any loader realted status
@@ -24,7 +25,7 @@ const initialState: TaskState = {
   list: [],
 };
 
-const getInitialState = () => {
+export const getInitialState = () => {
   const locallyStoredTasks = getTasks() || [];
   return {
     list: locallyStoredTasks as Task[],
@@ -35,25 +36,34 @@ export const taskSlice = createSlice({
   name: "task",
   initialState: getInitialState,
   reducers: {
-    create: (state, action: PayloadAction<Task>) => {
-      state.list = [...state.list, action.payload];
+    reinitiateState: (state) => {
+      const initialState = getInitialState();
+      console.log("intialState", initialState);
+      state.list = initialState.list;
     },
-    remove: (state, action: PayloadAction<Task>) => {
+    createTask: (state, action: PayloadAction<Task>) => {
+      state.list = [...state.list, action.payload];
+      saveTasks(state.list);
+    },
+    removeTask: (state, action: PayloadAction<Task>) => {
       const filteredTasks = state.list.filter(
         (task) => task.id !== action.payload.id
       );
       state.list = filteredTasks;
+      saveTasks(state.list);
     },
-    update: (state, action: PayloadAction<Task>) => {
+    updateTask: (state, action: PayloadAction<Task>) => {
       const filteredTasks = state.list.filter(
         (task) => task.id !== action.payload.id
       );
       state.list = [...filteredTasks, action.payload];
+      saveTasks(state.list);
     },
   },
 });
 
-export const { create, remove, update } = taskSlice.actions;
+export const { reinitiateState, createTask, removeTask, updateTask } =
+  taskSlice.actions;
 
 export const selectAllTasks = (state: RootState) => state.task.list;
 export const selectAllPendingTasks = (state: RootState) =>

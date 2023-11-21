@@ -2,14 +2,18 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ResponsiveDrawer from "../components/navbar/NavBar";
+import NavBar from "../components/navbar/NavBar";
+import AddTaskForm from "../components/task/AddTaskForm";
+import { useNavigate } from "react-router-dom";
+import PATHS from "../routing/paths";
 
 const drawerWidth = 240;
 
-export default function DashboardPage() {
+export default function AddTaskPage() {
+  const navigate = useNavigate();
   return (
     <Box sx={{ display: "flex" }}>
-      <ResponsiveDrawer />
+      <NavBar />
       <Box
         component="main"
         sx={{
@@ -19,9 +23,7 @@ export default function DashboardPage() {
         }}
       >
         <Toolbar />
-        <Typography paragraph>
-          <h1>Dashboard</h1>
-        </Typography>
+        <AddTaskForm />
       </Box>
     </Box>
   );

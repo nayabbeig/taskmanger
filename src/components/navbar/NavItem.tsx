@@ -10,12 +10,13 @@ export interface NavItemType {
   label: string;
   Icon: JSX.Element;
   path: string;
+  onClick?: () => void;
 }
 
-const NavItem = ({ id, Icon, label, path }: NavItemType) => {
+const NavItem = ({ id, Icon, label, path, onClick }: NavItemType) => {
   const { pathname } = useLocation();
   return (
-    <Link className="undecoratedLink" to={path}>
+    <Link onClick={onClick} className="undecoratedLink" to={path}>
       <ListItem selected={path === pathname} id={id} disablePadding>
         <ListItemButton>
           <ListItemIcon>{Icon}</ListItemIcon>

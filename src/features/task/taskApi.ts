@@ -28,12 +28,21 @@ export const getAppData = () => {
   return JSON.parse(appDataJson) as AppData;
 };
 
+export const setAppData = (appData: AppData) => {
+  localStorage.setItem(APP_KEY, JSON.stringify(appData));
+};
+
+export const getCurrentUser = () => {
+  const appData = getAppData();
+  return appData?.currentUser;
+};
+
 export const saveTasks = (tasks: Task[]) => {
   const appData = getAppData();
   if (!appData?.currentUser) return;
   const { currentUser } = appData;
   appData.tasks[currentUser.username] = tasks;
-  localStorage.setItem(APP_KEY, JSON.stringify(appData));
+  setAppData(appData);
 };
 
 export const getTasks = () => {

@@ -8,7 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -17,23 +17,38 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import NavBar from "../components/navbar/NavBar";
+import NavBar from "../navbar/NavBar";
 import {
   AuthenticationResponses,
   AuthenticationStatus,
   signUp,
-} from "../features/authentication/authenticationApi";
-import PATHS from "../routing/paths";
+} from "../../features/authentication/authenticationApi";
+import PATHS from "../../routing/paths";
+import { createTask, Task, TaskType } from "../../features/task/taskSlice";
+import { useAppDispatch } from "../../app/hooks";
+import { Snackbar } from "@mui/material";
+import { useAppSnackbar } from "../common/AppSnackbar";
+import AppDatePicker from "../common/DatePicker";
+import dayjs from "dayjs";
 
 const theme = createTheme();
 
-export default function SignUp() {
-  const [firstNameError, setFirstNameError] = React.useState("");
-  const [lastNameError, setLastNameError] = React.useState("");
-  const [usernameError, setEmailError] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState("");
+export default function AddTaskForm() {
+  const [titleError, setTitleError] = React.useState("");
+  const [dueDateError, setDueDateError] = React.useState("");
+  const [descriptionError, setDescriptionError] = React.useState("");
+  const [dueDate, setDueDate] = React.useState<Date>(new Date());
+  const {
+    AppSnackbar: AppSnackbarCreateSuccess,
+    showAppSnackbar: showAppSnackbarCreateSuccess,
+  } = useAppSnackbar({
+    severity: "success",
+    message: "Task has been added",
+  });
 
   const [loading, setLoading] = React.useState(false);
+
+  const dispatch = useAppDispatch();
 
   const [successResponse, setSuccessResponse] =
     React.useState<AuthenticationResponses | null>(null);
@@ -41,56 +56,48 @@ export default function SignUp() {
     React.useState<AuthenticationResponses | null>(null);
 
   const validate = ({
-    firstName,
-    lastName,
-    username,
-    password,
+    title,
+    description,
+    dueDate,
   }: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    password: string;
+    title: string;
+    description: string;
+    dueDate: Date;
   }) => {
-    setFirstNameError(firstName ? "" : "First name is required");
-    setLastNameError(lastName ? "" : "Last name is required");
-    setEmailError(username ? "" : "Email name is required");
-    setPasswordError(password ? "" : "Password name is required");
+    setTitleError(title ? "" : "Title is required");
+    setDescriptionError(description ? "" : "Description name is required");
+    setDueDateError(dueDate ? "" : "Due Date is required");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const { username, password, firstName, lastName } = {
-      firstName: data.get("firstName") as string,
-      username: data.get("username") as string,
-      password: data.get("password") as string,
-      lastName: data.get("lastName") as string,
+    const { title, description } = {
+      title: data.get("title") as string,
+      description: data.get("description") as string,
     };
 
-    if (username && password && firstName && lastName) {
-      validate({ firstName, lastName, username, password });
-      const { data, status, message } = signUp({
-        username,
-        password,
-        firstName,
-        lastName,
-      });
+    if (title && description && dueDate) {
+      validate({ title, description, dueDate });
+      const task = {
+        id: new Date().toISOString(),
+        title,
+        description,
+        dueDate: dueDate.toISOString(),
+        type: TaskType.PENDING,
+      } as Task;
+
+      dispatch(createTask(task));
+
+      showAppSnackbarCreateSuccess();
+
       setLoading(false);
-      if (status === AuthenticationStatus.SUCCESS) {
-        setSuccessResponse({ data, status, message });
-        return;
-      }
-
-      if (status >= 300) {
-        setAlertError({ data, status, message });
-      }
-
       return;
     }
 
     setLoading(false);
-    validate({ firstName, lastName, username, password });
+    validate({ title, description, dueDate });
   };
 
   return (
@@ -113,6 +120,7 @@ export default function SignUp() {
               {alertError.message}
             </Alert>
           )}
+
           <Backdrop
             sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 5 }}
             open={loading}
@@ -127,11 +135,11 @@ export default function SignUp() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
+            <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
+              <PlaylistAddIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign Up
+              Add A New Task
             </Typography>
             {successResponse ? (
               <Box
@@ -158,52 +166,28 @@ export default function SignUp() {
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      error={!!firstNameError}
-                      helperText={firstNameError}
-                      autoComplete="given-name"
-                      name="firstName"
+                      error={!!titleError}
+                      helperText={titleError}
+                      name="title"
                       required
                       fullWidth
-                      id="firstName"
-                      label="First Name"
+                      id="title"
+                      label="Title"
                       autoFocus
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      error={!!lastNameError}
-                      helperText={lastNameError}
-                      required
-                      fullWidth
-                      id="lastName"
-                      label="Last Name"
-                      name="lastName"
-                      autoComplete="family-name"
-                    />
+                    <AppDatePicker setDate={setDueDate} />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      error={!!usernameError}
-                      helperText={usernameError}
+                      error={!!descriptionError}
+                      helperText={descriptionError}
                       required
                       fullWidth
-                      id="username"
-                      label="Username"
-                      name="username"
-                      autoComplete="username"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      error={!!passwordError}
-                      helperText={passwordError}
-                      required
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                      autoComplete="new-password"
+                      id="description"
+                      label="Description"
+                      name="description"
                     />
                   </Grid>
                 </Grid>
@@ -213,18 +197,12 @@ export default function SignUp() {
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
                 >
-                  Sign Up
+                  Add
                 </Button>
-                <Grid container justifyContent="flex-end">
-                  <Grid item>
-                    <Link href={PATHS.LOGIN} variant="body2">
-                      Go to Sign In
-                    </Link>
-                  </Grid>
-                </Grid>
               </Box>
             )}
           </Box>
+          <AppSnackbarCreateSuccess />
         </Container>
       </ThemeProvider>
     </>
