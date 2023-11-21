@@ -18,65 +18,83 @@ import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import NavBar from "../components/navbar/NavBar";
+import {
+  AuthenticationResponses,
+  AuthenticationStatus,
+  signUp,
+} from "../features/authentication/authenticationApi";
+import PATHS from "../routing/paths";
 
 const theme = createTheme();
 
 export default function SignUp() {
   const [firstNameError, setFirstNameError] = React.useState("");
   const [lastNameError, setLastNameError] = React.useState("");
-  const [emailError, setEmailError] = React.useState("");
+  const [usernameError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
 
   const [loading, setLoading] = React.useState(false);
 
-  const [successResponse, setSuccessResponse] = React.useState<any | null>(
-    null
-  );
-  const [alertError, setAlertError] = React.useState<any>(null);
+  const [successResponse, setSuccessResponse] =
+    React.useState<AuthenticationResponses | null>(null);
+  const [alertError, setAlertError] =
+    React.useState<AuthenticationResponses | null>(null);
 
   const validate = ({
     firstName,
     lastName,
-    email,
+    username,
     password,
   }: {
     firstName: string;
     lastName: string;
-    email: string;
+    username: string;
     password: string;
   }) => {
     setFirstNameError(firstName ? "" : "First name is required");
     setLastNameError(lastName ? "" : "Last name is required");
-    setEmailError(email ? "" : "Email name is required");
+    setEmailError(username ? "" : "Email name is required");
     setPasswordError(password ? "" : "Password name is required");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    console.log("submitting");
     setLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const { email, password, firstName, lastName } = {
-      email: data.get("email") as string,
-      password: data.get("password") as string,
+    const { username, password, firstName, lastName } = {
       firstName: data.get("firstName") as string,
+      username: data.get("username") as string,
+      password: data.get("password") as string,
       lastName: data.get("lastName") as string,
     };
 
-    if (email && password && firstName && lastName) {
-      validate({ firstName, lastName, email, password });
-      const response = { status: 200 }; //await (() => {})(email, password, firstName, lastName);
+    console.log({ username, password, firstName, lastName });
 
+    if (username && password && firstName && lastName) {
+      validate({ firstName, lastName, username, password });
+      const { data, status, message } = signUp({
+        username,
+        password,
+        firstName,
+        lastName,
+      });
+      console.log({ data, status, message });
       setLoading(false);
-      if (response?.status === 200) {
-        console.log(response);
-        setSuccessResponse(response);
-      } else if (response?.status === 403) {
-        setAlertError(response);
+      if (status === AuthenticationStatus.SUCCESS) {
+        setSuccessResponse({ data, status, message });
+        return;
       }
-    } else {
-      setLoading(false);
-      validate({ firstName, lastName, email, password });
+
+      if (status >= 300) {
+        setAlertError({ data, status, message });
+      }
+
+      return;
     }
+
+    setLoading(false);
+    validate({ firstName, lastName, username, password });
   };
 
   return (
@@ -92,11 +110,11 @@ export default function SignUp() {
                 top: "80px",
               }}
               onClose={() => {
-                setAlertError("");
+                setAlertError(null);
               }}
             >
-              <AlertTitle>Failed: {alertError?.data?.code}</AlertTitle>
-              {alertError?.data?.message}
+              <AlertTitle>Failed: {alertError.status}</AlertTitle>
+              {alertError.message}
             </Alert>
           )}
           <Backdrop
@@ -128,10 +146,10 @@ export default function SignUp() {
               >
                 <Alert severity="success">
                   <AlertTitle>Success</AlertTitle>
-                  Account created successfully! A verification link has been
-                  send to your email <b>{successResponse?.data?.email}</b>, you
-                  need to visit that link to verify your account. You can login
-                  to your account once verified.
+                  Account created successfully!{" "}
+                  <Link href={PATHS.LOGIN} variant="body2">
+                    Go to Sign In
+                  </Link>
                 </Alert>
               </Box>
             ) : (
@@ -142,23 +160,35 @@ export default function SignUp() {
                 sx={{ mt: 3 }}
               >
                 <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
                       error={!!firstNameError}
                       helperText={firstNameError}
-                      autoComplete="name"
-                      name="name"
+                      autoComplete="given-name"
+                      name="firstName"
                       required
                       fullWidth
-                      id="name"
-                      label="Name"
+                      id="firstName"
+                      label="First Name"
                       autoFocus
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      error={!!lastNameError}
+                      helperText={lastNameError}
+                      required
+                      fullWidth
+                      id="lastName"
+                      label="Last Name"
+                      name="lastName"
+                      autoComplete="family-name"
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      error={!!emailError}
-                      helperText={emailError}
+                      error={!!usernameError}
+                      helperText={usernameError}
                       required
                       fullWidth
                       id="username"
@@ -191,7 +221,7 @@ export default function SignUp() {
                 </Button>
                 <Grid container justifyContent="flex-end">
                   <Grid item>
-                    <Link href="" variant="body2">
+                    <Link href={PATHS.LOGIN} variant="body2">
                       Go to Sign In
                     </Link>
                   </Grid>

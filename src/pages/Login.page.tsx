@@ -12,48 +12,54 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Alert, AlertTitle } from "@mui/material";
+import {
+  AuthenticationResponses,
+  signIn,
+} from "../features/authentication/authenticationApi";
+import PATHS from "../routing/paths";
 
 const theme = createTheme();
 
 export default function Login() {
-  const [emailError, setEmailError] = React.useState("");
+  const [usernameError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
-  const [successResponse, setSuccessResponse] = React.useState<any | null>(
-    null
-  );
-  const [alertError, setAlertError] = React.useState<any>(null);
+  const [successResponse, setSuccessResponse] =
+    React.useState<AuthenticationResponses | null>(null);
+  const [alertError, setAlertError] =
+    React.useState<AuthenticationResponses | null>(null);
 
   const validate = ({
-    email,
+    username,
     password,
   }: {
-    email: string;
+    username: string;
     password: string;
   }) => {
-    setEmailError(email ? "" : "Email name is required");
+    setEmailError(username ? "" : "Email name is required");
     setPasswordError(password ? "" : "Password name is required");
-    return !!(email && password);
+    return !!(username && password);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const { email, password } = {
-      email: data.get("email") as string,
+    const { username, password } = {
+      username: data.get("username") as string,
       password: data.get("password") as string,
     };
-    if (email && password) {
-      validate({ email, password });
-      const response = { status: 200 }; //await login({ email, password });
+    if (username && password) {
+      validate({ username, password });
+      const response = signIn(username, password);
 
       if (response.status === 200) {
         setSuccessResponse(response);
+        alert("successs");
         // history.push(path.ui.root);
       } else if (response.status >= 400) {
         setAlertError(response);
       }
     } else {
-      validate({ email, password });
+      validate({ username, password });
     }
   };
 
@@ -70,11 +76,11 @@ export default function Login() {
                 top: "80px",
               }}
               onClose={() => {
-                setAlertError("");
+                setAlertError(null);
               }}
             >
-              <AlertTitle>Failed: {alertError?.data?.code}</AlertTitle>
-              {alertError?.data?.message}
+              <AlertTitle>Failed: {alertError.status}</AlertTitle>
+              {alertError.message}
             </Alert>
           )}
           <Box
@@ -101,10 +107,10 @@ export default function Login() {
                 margin="normal"
                 required
                 fullWidth
-                id="email"
+                id="username"
                 label="Email"
-                name="email"
-                autoComplete="email"
+                name="username"
+                autoComplete="username"
                 autoFocus
               />
               <TextField
@@ -130,7 +136,7 @@ export default function Login() {
                   Don't have account?
                 </Grid>
                 <Grid item onClick={() => {}}>
-                  <Link href="" variant="body2">
+                  <Link href={PATHS.SIGNUP} variant="body2">
                     Go To Signup
                   </Link>
                 </Grid>
