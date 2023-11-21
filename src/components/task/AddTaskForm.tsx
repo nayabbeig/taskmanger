@@ -114,13 +114,13 @@ export default function AddTaskForm() {
               alignItems: "center",
             }}
           >
+            <FormHeader />
             <Box
               component="form"
               noValidate
               onSubmit={handleSubmit}
               sx={{ mt: 3 }}
             >
-              <FormHeader />
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField

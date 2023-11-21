@@ -91,7 +91,11 @@ export default function TaskTable({ tasks, type }: TaskTableProps) {
   };
 
   return taskToEdit ? (
-    <EditTaskForm task={taskToEdit} onComplete={onUpdateComplete} />
+    <EditTaskForm
+      task={taskToEdit}
+      onComplete={onUpdateComplete}
+      cancelUpdate={() => setTaskToEdit(null)}
+    />
   ) : (
     <>
       <TaskTableHeader

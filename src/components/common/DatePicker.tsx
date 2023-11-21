@@ -17,6 +17,7 @@ export default function AppDatePicker({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
+        sx={{ width: "100%" }}
         defaultValue={dayjs(defaultValue)}
         views={["year", "month", "day"]}
         onChange={(e) => {

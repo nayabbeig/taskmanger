@@ -10,6 +10,8 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Alert from "@mui/material/Alert";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AlertTitle from "@mui/material/AlertTitle";
 import { AuthenticationResponses } from "../../features/authentication/authenticationApi";
 import { Task, TaskType, updateTask } from "../../features/task/taskSlice";
@@ -25,7 +27,7 @@ const UpdateTaskHeader = () => (
       <PlaylistAddIcon />
     </Avatar>
     <Typography component="h1" variant="h5">
-      Add A New Task
+      Update Task
     </Typography>
   </>
 );
@@ -33,9 +35,11 @@ const UpdateTaskHeader = () => (
 export default function EditTaskForm({
   task,
   onComplete,
+  cancelUpdate,
 }: {
   task: Task;
   onComplete: () => void;
+  cancelUpdate: () => void;
 }) {
   const [titleError, setTitleError] = React.useState("");
   const [dueDateError, setDueDateError] = React.useState("");
@@ -146,14 +150,26 @@ export default function EditTaskForm({
                   />
                 </Grid>
               </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Update
-              </Button>
+              <Grid>
+                <Button
+                  variant="outlined"
+                  sx={{ mt: 3, mr: 1 }}
+                  size="large"
+                  startIcon={<HighlightOffIcon />}
+                  onClick={cancelUpdate}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  sx={{ mt: 3, mr: 1 }}
+                  endIcon={<CheckCircleOutlineIcon />}
+                >
+                  Update
+                </Button>
+              </Grid>
             </Box>
           </Box>
         </Container>
